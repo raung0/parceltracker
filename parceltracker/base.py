@@ -93,7 +93,7 @@ class ParcelInfo:
         final = f"{Colors.PURPLE}Tracking numbers{Colors.END}: {', '.join(self.tracking_numbers)}\n"
         final += f"{Colors.PURPLE}To{Colors.END}: {to.name} {flag(to.alpha_2.upper())}\n"
         final += f"{Colors.PURPLE}Origin{Colors.END}: {origin.name} {flag(origin.alpha_2.upper())}\n"
-        final += f"{Colors.PURPLE}Weight{Colors.END}: {self.weight}\n"
+        final += f"{Colors.PURPLE}Weight{Colors.END}: {self.weight}kg\n"
         final += f"{Colors.PURPLE}Channel{Colors.END}: {self.channel}\n"
         final += f"{Colors.PURPLE}Provider{Colors.END}: {self.provider}\n"
         final += f"{Colors.PURPLE}Days in transit{Colors.END}: {self.days_in_transit}\n"
