@@ -90,8 +90,22 @@ class ParcelInfo:
     events_log: list[ParcelEvent] = []
 
     def pretty_print(self) -> str:
-        to = pycountry.countries.lookup(self.to)
-        origin = pycountry.countries.lookup(self.origin)
+        class Country:
+            name: str = ""
+            alpha_2: str = ""
+            def __init__(self, name: str, alpha_2: str) -> None:
+                self.name = name
+                self.alpha_2 = alpha_2
+
+        try:
+            to = pycountry.countries.lookup(self.to.split()[-1])
+        except LookupError:
+            to = Country(self.to, "ZW")
+        try:
+            origin = pycountry.countries.lookup(self.origin.split()[-1])
+        except LookupError:
+            origin = Country(self.origin, "ZW")
+
         final = f"{Colors.PURPLE}Tracking numbers{Colors.END}: {', '.join(self.tracking_numbers)}\n"
         final += f"{Colors.PURPLE}To{Colors.END}: {to.name} {flag(to.alpha_2.upper())}\n"
         final += f"{Colors.PURPLE}Origin{Colors.END}: {origin.name} {flag(origin.alpha_2.upper())}\n"
@@ -208,5 +222,4 @@ DEFAULT_HEADERS = {
     'Cache-Control': 'no-cache',
     }
 
-from .trackers import yunexpress, speedy
-
+from .trackers import yunexpress, speedy, fedex
