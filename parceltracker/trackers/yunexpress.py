@@ -9,7 +9,7 @@ from .. import base
 class YunExpressTracker(base.ParcelTracker):
     company_name: str = "YunExpress"
     provider_domain: str = "yuntrack.com"
-    tracking_number_regex: str = r'^[A-Z]{2}[0-9]{16}$'
+    tracking_number_regex: str = r'^YT[0-9]{16}$'
 
 
     def get_parcel_info(self, tracking_number: str) -> base.ParcelInfo:
@@ -57,10 +57,15 @@ class YunExpressTracker(base.ParcelTracker):
             parcel_event.company_name = self.company_name
             parcel_info.events_log.append(parcel_event)
 
-        tracker_other = base.find_tracker_by_domain(base.get_domain_from_url(data['ResultList'][0]['TrackInfo']['ProviderSite']))
-        if tracker_other is not None and len(parcel_info.tracking_numbers) > 1:
-            parcel_info_new = tracker_other.get_parcel_info(parcel_info.tracking_numbers[1])
-            parcel_info.events_log.extend(parcel_info_new.events_log)
+        provider_site = data['ResultList'][0]['TrackInfo']['ProviderSite']
+        if provider_site is not None and provider_site != "":
+            domain = base.get_domain_from_url(provider_site)
+            if domain is not None and domain != "" and self.provider_domain != domain:
+                tracker_other = base.find_tracker_by_domain(domain)
+
+                if tracker_other is not None and len(parcel_info.tracking_numbers) > 1:
+                    parcel_info_new = tracker_other.get_parcel_info(parcel_info.tracking_numbers[1])
+                    parcel_info.events_log.extend(parcel_info_new.events_log)
 
         parcel_info.events_log.sort(reverse=True)
 
