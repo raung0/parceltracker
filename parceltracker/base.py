@@ -4,6 +4,8 @@ import copy
 import pycountry
 from flag import flag
 
+import concurrent.futures
+
 
 class Colors:
     """ ANSI color codes """
@@ -181,8 +183,15 @@ def get_parcel_info(tracking_number: str) -> ParcelInfo:
         raise Exception(f"Could not find a tracker for tracking number {tracking_number}")
 
     parcels_info = []
-    for t in tracker:
-        parcels_info.append(t.get_parcel_info(tracking_number))
+
+    def get_parcel_info_wrapper(t):
+        return t.get_parcel_info(tracking_number)
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = [executor.submit(get_parcel_info_wrapper, t) for t in tracker]
+        concurrent.futures.wait(futures)
+        for future in futures:
+            parcels_info.append(future.result())
 
     return merge_parcels_info(parcels_info)
 
