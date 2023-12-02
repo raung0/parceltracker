@@ -2,8 +2,8 @@ from datetime import datetime
 import dateparser
 import re as regex
 from selenium.webdriver.common.by import By
-from selenium import webdriver
 import undetected_chromedriver as uc
+from fake_useragent import UserAgent
 
 from .. import base
 
@@ -13,19 +13,28 @@ class FedEx(base.ParcelTracker):
     provider_domain: str = "speedy.bg"
     tracking_number_regex: str = r'^\d{12,15}$|^\d{20,22}$'
 
-    def get_parcel_info(self, tracking_number: str) -> base.ParcelInfo:
-        tracking_number = tracking_number.strip().upper()
-        if regex.match(self.tracking_number_regex, tracking_number) is None:
-            return base.ParcelInfo()
-
+    def _do_the_funny_thing(self, tracking_number: str) -> base.ParcelInfo:
         options = uc.ChromeOptions()
-        options.add_argument('--headless')
-        options.add_argument('--window-size=1920,1080')
-        driver = uc.Chrome()
+        options.add_argument('--headless=new')
+        options.add_argument("--incognito")
+        options.add_argument("--nogpu")
+        options.add_argument("--disable-gpu")
+        options.add_argument("--window-size=1280,1280")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--enable-javascript")
+        options.add_argument('--disable-blink-features=AutomationControlled')
+        driver = uc.Chrome(options=options)
+
+        ua = UserAgent()
+        userAgent = ua.random
+
+        driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+        driver.execute_cdp_cmd('Network.setUserAgentOverride', {"userAgent": userAgent})
+
         driver.get(f"https://www.fedex.com/fedextrack/?action=track&tracknumbers={tracking_number}&locale=en_RO&cntry_code=us")
 
         # Wait for the page to load
-        driver.implicitly_wait(8)
+        driver.implicitly_wait(10)
 
         categories_xpath = '.travel-history-table__row'
         categories = driver.find_elements(By.CSS_SELECTOR, categories_xpath)
@@ -83,6 +92,19 @@ class FedEx(base.ParcelTracker):
         parcel_info.days_in_transit = (datetime.now() - parcel_info.events_log[-1].date).days
 
         return parcel_info
+
+
+    def get_parcel_info(self, tracking_number: str) -> base.ParcelInfo:
+        tracking_number = tracking_number.strip().upper()
+        if regex.match(self.tracking_number_regex, tracking_number) is None:
+            return base.ParcelInfo()
+
+        try:
+            return self._do_the_funny_thing(tracking_number)
+        except Exception as e:
+            print(e)
+            return base.ParcelInfo()
+
 
 base.TRACKERS.append(FedEx())
 
