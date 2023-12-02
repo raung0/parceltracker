@@ -35,10 +35,7 @@ class FedEx(base.ParcelTracker):
         for category in categories:
             date = category.find_element(By.CSS_SELECTOR, '.travel-history-table__scan-event-date > span')
             try:
-                # Change Dayofweek, MM/DD/YYYY to DD/MM/YYYY
                 date = date.text.split(", ")[-1]
-                #date = date.split("/")
-                #date = f"{date[1]}/{date[0]}/{date[2]}"
 
                 log_data_with_time_message_and_location = category.find_elements(By.CSS_SELECTOR, '.travel-history__scan-event')
                 for i in log_data_with_time_message_and_location:
