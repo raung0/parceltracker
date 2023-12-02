@@ -46,7 +46,7 @@ class SpeedyTracker(base.ParcelTracker):
 
         for row in data:
             parcel_event = base.ParcelEvent()
-            date = dateparser.parse(row['Date'], languages=['ro'], locales=['ro'])
+            date = dateparser.parse(row['Date'])
             if date is not None:
                 parcel_event.date = date
             parcel_event.location = row['City/village']

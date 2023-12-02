@@ -40,14 +40,14 @@ class YunExpressTracker(base.ParcelTracker):
         parcel_info.origin = data['ResultList'][0]['TrackInfo']['OriginCountryCode']
         parcel_info.to = data['ResultList'][0]['TrackInfo']['DestinationCountryCode']
 
-        date = dateparser.parse(data['ResultList'][0]['TrackInfo']['CreatedOn'], languages=['ro'], locales=['ro'])
+        date = dateparser.parse(data['ResultList'][0]['TrackInfo']['CreatedOn'])
         if date is not None:
             current_date = datetime.now()
             parcel_info.days_in_transit = (current_date - date).days
 
         for event in data['ResultList'][0]['TrackInfo']['TrackEventDetails']:
             parcel_event = base.ParcelEvent()
-            date = dateparser.parse(event['CreatedOn'], languages=['ro'], locales=['ro'])
+            date = dateparser.parse(event['CreatedOn'])
             if date is not None:
                 parcel_event.date = date
             location = event['ProcessLocation']
