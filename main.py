@@ -11,7 +11,7 @@ def main():
 
     parcel_info = base.get_parcel_info(tracking_number)
     if parcel_info.to == '':
-        print("No parcel info found for tracking number: {}".format(tracking_number))
+        print("Failed to get parcel information for tracking number: {}".format(tracking_number))
         return
 
     print(parcel_info.pretty_print())
