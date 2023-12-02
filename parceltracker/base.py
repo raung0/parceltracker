@@ -114,8 +114,10 @@ class ParcelInfo:
         final += f"{Colors.PURPLE}Provider{Colors.END}: {self.provider}\n"
         final += f"{Colors.PURPLE}Days in transit{Colors.END}: {self.days_in_transit}\n"
         final += f"{Colors.PURPLE}Events{Colors.END}:\n"
+        max_company_name_events = max([len(event.company_name) for event in self.events_log])
         for event in self.events_log:
-            final += f"  {event.pretty_print()}\n"
+            final += ' ' * (max_company_name_events - len(event.company_name) + 3)
+            final += f"{event.pretty_print()}\n"
         return final
 
     def __init__(self) -> None:
